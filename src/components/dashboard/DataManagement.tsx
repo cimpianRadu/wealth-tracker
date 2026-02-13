@@ -5,7 +5,7 @@ import { useWealthStore } from '@/lib/store';
 import { exportAllData, importData, exportAssetsCSV, exportDebtsCSV } from '@/lib/db';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Upload, Camera } from 'lucide-react';
+import { Download, Upload, Camera, Database } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function DataManagement() {
@@ -97,59 +97,76 @@ export function DataManagement() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Gestionare Date</CardTitle>
+        <CardTitle className="text-lg flex items-center gap-2">
+          <Database className="h-4 w-4" />
+          Gestionare Date
+        </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <Button
-            variant="outline"
-            onClick={handleExportJSON}
-            disabled={isExporting}
-            className="w-full"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Export JSON
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleExportCSV}
-            className="w-full"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Export CSV
-          </Button>
+      <CardContent className="space-y-4">
+        <div className="space-y-3">
+          <div>
+            <Button
+              variant="outline"
+              onClick={handleExportJSON}
+              disabled={isExporting}
+              className="w-full justify-start"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Backup Complet (JSON)
+            </Button>
+            <p className="text-xs text-muted-foreground mt-1 ml-1">
+              Salvează toate datele tale într-un fișier. Poți restaura oricând din acest fișier, inclusiv pe alt dispozitiv.
+            </p>
+          </div>
+
+          <div>
+            <Button
+              variant="outline"
+              onClick={handleExportCSV}
+              className="w-full justify-start"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export CSV (Excel)
+            </Button>
+            <p className="text-xs text-muted-foreground mt-1 ml-1">
+              Descarcă activele și datoriile în format tabel, util pentru analiză în Excel sau Google Sheets.
+            </p>
+          </div>
+
+          <div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              onChange={handleImportJSON}
+              className="hidden"
+            />
+            <Button
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isImporting}
+              className="w-full justify-start"
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              {isImporting ? 'Se importă...' : 'Restaurează din Backup'}
+            </Button>
+            <p className="text-xs text-muted-foreground mt-1 ml-1">
+              Încarcă un fișier JSON exportat anterior. Atenție: datele curente vor fi înlocuite complet.
+            </p>
+          </div>
         </div>
 
-        <div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            onChange={handleImportJSON}
-            className="hidden"
-          />
-          <Button
-            variant="outline"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isImporting}
-            className="w-full"
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            {isImporting ? 'Se importă...' : 'Import din JSON'}
-          </Button>
-        </div>
-
-        <div className="pt-2 border-t">
+        <div className="border-t pt-4">
           <Button
             variant="outline"
             onClick={handleSnapshot}
-            className="w-full"
+            className="w-full justify-start"
           >
             <Camera className="h-4 w-4 mr-2" />
             Salvează Snapshot Lunar
           </Button>
-          <p className="text-xs text-muted-foreground mt-1">
-            Salvează starea curentă pentru a urmări evoluția lunară.
+          <p className="text-xs text-muted-foreground mt-1 ml-1">
+            Fotografiază starea financiară de azi. Snapshot-urile apar în graficul Evoluție Lunară din pagina de Analiză.
           </p>
         </div>
       </CardContent>

@@ -34,11 +34,11 @@ function BackupStatusIndicator({ lastBackupDate }: { lastBackupDate: string | nu
     return (
       <Link
         href="/settings"
-        className="flex items-center gap-1 text-xs text-amber-600 hover:text-amber-700 transition-colors"
+        className="flex items-center gap-1 text-xs bg-amber-500 text-white px-2.5 py-1 rounded-full hover:bg-amber-600 transition-colors"
         title="Niciun backup realizat"
       >
         <AlertTriangle className="h-3.5 w-3.5" />
-        <span className="hidden lg:inline">Fără backup</span>
+        <span>Fără backup</span>
       </Link>
     );
   }
@@ -48,19 +48,26 @@ function BackupStatusIndicator({ lastBackupDate }: { lastBackupDate: string | nu
   );
   const isStale = daysSince > 7;
 
+  if (isStale) {
+    return (
+      <Link
+        href="/settings"
+        className="flex items-center gap-1 text-xs bg-amber-500 text-white px-2.5 py-1 rounded-full hover:bg-amber-600 transition-colors"
+        title={`Ultimul backup: ${new Date(lastBackupDate).toLocaleDateString('ro-RO')}`}
+      >
+        <AlertTriangle className="h-3.5 w-3.5" />
+        <span>{daysSince}z de la backup</span>
+      </Link>
+    );
+  }
+
   return (
     <Link
       href="/settings"
-      className={`flex items-center gap-1 text-xs transition-colors ${
-        isStale ? 'text-amber-600 hover:text-amber-700' : 'text-green-600 hover:text-green-700'
-      }`}
+      className="flex items-center gap-1 text-xs text-green-600 hover:text-green-700 transition-colors"
       title={`Ultimul backup: ${new Date(lastBackupDate).toLocaleDateString('ro-RO')}`}
     >
-      {isStale ? (
-        <AlertTriangle className="h-3.5 w-3.5" />
-      ) : (
-        <CheckCircle2 className="h-3.5 w-3.5" />
-      )}
+      <CheckCircle2 className="h-3.5 w-3.5" />
       <span className="hidden lg:inline">
         {daysSince === 0 ? 'Backup azi' : `${daysSince}z de la backup`}
       </span>

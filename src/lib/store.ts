@@ -72,13 +72,36 @@ export const useWealthStore = create<WealthStore>((set, get) => ({
 
   loadAll: async () => {
     try {
-      const [assets, debts, snapshots, rates, transactions] = await Promise.all([
+      const [assets, debts, snapshots, transactions] = await Promise.all([
         dbOps.getAllAssets(),
         dbOps.getAllDebts(),
         dbOps.getSnapshots(),
-        dbOps.getExchangeRates(),
         dbOps.getAllTransactions(),
       ]);
+
+      // Fetch live exchange rates from BNR via our API route
+      let exchangeRates = DEFAULT_RATES;
+      try {
+        const ratesRes = await fetch('/api/exchange-rates');
+        if (ratesRes.ok) {
+          const liveRates = await ratesRes.json();
+          exchangeRates = { eurToRon: liveRates.eurToRon, usdToRon: liveRates.usdToRon };
+          // Persist to DB for offline use
+          await dbOps.setExchangeRates(liveRates.eurToRon, liveRates.usdToRon);
+        } else {
+          // Fallback to stored rates
+          const storedRates = await dbOps.getExchangeRates();
+          if (storedRates) {
+            exchangeRates = { eurToRon: storedRates.eurToRon, usdToRon: storedRates.usdToRon };
+          }
+        }
+      } catch {
+        // Offline - use stored rates
+        const storedRates = await dbOps.getExchangeRates();
+        if (storedRates) {
+          exchangeRates = { eurToRon: storedRates.eurToRon, usdToRon: storedRates.usdToRon };
+        }
+      }
 
       // Load backup tracking from localStorage
       let lastBackupDate: string | null = null;
@@ -95,9 +118,7 @@ export const useWealthStore = create<WealthStore>((set, get) => ({
         debts,
         snapshots,
         transactions,
-        exchangeRates: rates
-          ? { eurToRon: rates.eurToRon, usdToRon: rates.usdToRon }
-          : DEFAULT_RATES,
+        exchangeRates,
         isLoading: false,
         lastBackupDate,
         backupHistory,

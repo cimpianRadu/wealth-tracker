@@ -1,45 +1,30 @@
 'use client';
 
-import { useState } from 'react';
 import { useWealthStore } from '@/lib/store';
 import type { Currency } from '@/lib/db';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Settings } from 'lucide-react';
-import { toast } from 'sonner';
 
 export function CurrencySettings() {
-  const { displayCurrency, setDisplayCurrency, exchangeRates, updateExchangeRates } = useWealthStore();
-  const [eurRate, setEurRate] = useState(String(exchangeRates.eurToRon));
-  const [usdRate, setUsdRate] = useState(String(exchangeRates.usdToRon));
+  const { displayCurrency, setDisplayCurrency, exchangeRates } = useWealthStore();
 
   const currencies: Currency[] = ['RON', 'EUR', 'USD'];
-
-  const handleSaveRates = async () => {
-    const eur = parseFloat(eurRate);
-    const usd = parseFloat(usdRate);
-    if (isNaN(eur) || isNaN(usd)) {
-      toast.error('Cursuri invalide.');
-      return;
-    }
-    await updateExchangeRates(eur, usd);
-    toast.success('Cursuri de schimb actualizate!');
-  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <Settings className="h-4 w-4" />
-          Setări Monedă
+          Monedă de Afișare
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <Label className="text-sm">Afișează în:</Label>
-          <div className="flex gap-2 mt-1">
+          <p className="text-sm text-muted-foreground mb-2">
+            Alege moneda în care vrei să vezi toate valorile din aplicație.
+          </p>
+          <div className="flex gap-2">
             {currencies.map(c => (
               <Button
                 key={c}
@@ -47,45 +32,16 @@ export function CurrencySettings() {
                 size="sm"
                 onClick={() => setDisplayCurrency(c)}
               >
-                {c}
+                {c === 'RON' ? 'RON (Lei)' : c === 'EUR' ? 'EUR (Euro)' : 'USD (Dollar)'}
               </Button>
             ))}
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label className="text-sm">Cursuri de Schimb</Label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <div>
-              <Label className="text-xs text-muted-foreground">1 EUR =</Label>
-              <div className="flex items-center gap-1">
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={eurRate}
-                  onChange={e => setEurRate(e.target.value)}
-                  className="h-8"
-                />
-                <span className="text-xs text-muted-foreground">RON</span>
-              </div>
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">1 USD =</Label>
-              <div className="flex items-center gap-1">
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={usdRate}
-                  onChange={e => setUsdRate(e.target.value)}
-                  className="h-8"
-                />
-                <span className="text-xs text-muted-foreground">RON</span>
-              </div>
-            </div>
-          </div>
-          <Button variant="outline" size="sm" onClick={handleSaveRates} className="w-full">
-            Salvează Cursuri
-          </Button>
+        <div className="text-xs text-muted-foreground border-t pt-3 space-y-1">
+          <p className="font-medium">Cursuri BNR (actualizate automat):</p>
+          <p>1 EUR = {exchangeRates.eurToRon.toFixed(4)} RON</p>
+          <p>1 USD = {exchangeRates.usdToRon.toFixed(4)} RON</p>
         </div>
       </CardContent>
     </Card>
