@@ -12,10 +12,15 @@ export function NetWorthCard() {
   const currentAssets = totalAssets();
   const currentDebts = totalDebts();
 
-  // Calculate change from last snapshot
+  // Calculate change from previous month's snapshot
+  // If the latest snapshot is from the current month, compare with the one before it
+  const currentMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
   const lastSnapshot = snapshots.length > 0 ? snapshots[snapshots.length - 1] : null;
-  const prevNetWorth = lastSnapshot?.netWorth ?? 0;
-  const change = lastSnapshot ? currentNetWorth - prevNetWorth : 0;
+  const prevSnapshot = lastSnapshot?.month === currentMonth && snapshots.length > 1
+    ? snapshots[snapshots.length - 2]
+    : lastSnapshot;
+  const prevNetWorth = prevSnapshot?.netWorth ?? 0;
+  const change = prevSnapshot ? currentNetWorth - prevNetWorth : 0;
   const changePercent = prevNetWorth !== 0 ? ((change / Math.abs(prevNetWorth)) * 100) : 0;
 
   return (

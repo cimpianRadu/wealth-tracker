@@ -1,17 +1,30 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { TrendingUp, BarChart3, Shield, Menu, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState } from 'react';
 import { useWealthStore } from '@/lib/store';
 
+function CurrencyLabel({ currency }: { currency: string }) {
+  switch (currency) {
+    case 'RON':
+      return <><span>🇷🇴</span> RON</>;
+    case 'EUR':
+      return <><span className="font-bold text-blue-600">€</span> EUR</>;
+    case 'USD':
+      return <><span className="font-bold text-green-600">$</span> USD</>;
+    default:
+      return <>{currency}</>;
+  }
+}
+
 const navLinks = [
   { href: '/dashboard', label: 'Dashboard' },
+  { href: '/analiza', label: 'Analiză' },
   { href: '/recommendations', label: 'Recomandări' },
-  { href: '/stats', label: 'Statistici' },
   { href: '/settings', label: 'Setări' },
   { href: '/privacy', label: 'Confidențialitate' },
 ];
@@ -57,6 +70,7 @@ function BackupStatusIndicator({ lastBackupDate }: { lastBackupDate: string | nu
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
   const { assets, debts, displayCurrency, lastBackupDate, isLoading } = useWealthStore();
 
   const hasData = !isLoading && (assets.length > 0 || debts.length > 0);
@@ -73,21 +87,31 @@ export function Header() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-6">
-          {navLinks.map(link => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {link.label}
-            </Link>
-          ))}
+        <nav className="hidden md:flex items-center gap-1">
+          {navLinks.map(link => {
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`text-sm px-3 py-1.5 rounded-md transition-colors ${
+                  isActive
+                    ? 'bg-muted font-medium text-foreground'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
           {hasData ? (
             <div className="flex items-center gap-3">
-              <Badge variant="outline" className="font-mono text-xs">
-                {displayCurrency}
-              </Badge>
+              <Link
+                href="/settings"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <CurrencyLabel currency={displayCurrency} />
+              </Link>
               <BackupStatusIndicator lastBackupDate={lastBackupDate} />
             </div>
           ) : (
@@ -107,28 +131,39 @@ export function Header() {
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-64">
-            <nav className="flex flex-col gap-4 mt-8">
-              {navLinks.map(link => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-sm hover:text-primary transition-colors"
-                  onClick={() => setOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
+          <SheetContent side="right" className="w-72">
+            <nav className="flex flex-col gap-1 mt-6">
+              {navLinks.map(link => {
+                const isActive = pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`text-base py-2.5 px-3 rounded-lg transition-colors ${
+                      isActive
+                        ? 'bg-muted font-medium text-foreground'
+                        : 'hover:bg-muted'
+                    }`}
+                    onClick={() => setOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
               {hasData ? (
-                <div className="flex items-center gap-3 pt-2 border-t">
-                  <Badge variant="outline" className="font-mono text-xs">
-                    {displayCurrency}
-                  </Badge>
+                <div className="flex items-center gap-3 mt-4 pt-4 px-3 border-t">
+                  <Link
+                    href="/settings"
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    onClick={() => setOpen(false)}
+                  >
+                    <CurrencyLabel currency={displayCurrency} />
+                  </Link>
                   <BackupStatusIndicator lastBackupDate={lastBackupDate} />
                 </div>
               ) : (
-                <Link href="/dashboard" onClick={() => setOpen(false)}>
-                  <Button className="w-full">
+                <Link href="/dashboard" onClick={() => setOpen(false)} className="mt-4">
+                  <Button className="w-full" size="lg">
                     <BarChart3 className="h-4 w-4 mr-1" />
                     Începe Acum
                   </Button>

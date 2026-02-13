@@ -4,8 +4,6 @@ import { useEffect } from 'react';
 import { useWealthStore } from '@/lib/store';
 import { Header, Footer } from '@/components/layout/Header';
 import { NetWorthCard } from '@/components/dashboard/NetWorthCard';
-import { AssetPieChart } from '@/components/dashboard/AssetPieChart';
-import { MonthlyChart } from '@/components/dashboard/MonthlyChart';
 import { AssetList } from '@/components/dashboard/AssetList';
 import { DebtList } from '@/components/dashboard/DebtList';
 import { TopBanner } from '@/components/ads/TopBanner';
@@ -14,7 +12,7 @@ import { IncognitoWarning, BackupReminder } from '@/components/dashboard/Incogni
 import { Loader2 } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { isLoading, loadAll } = useWealthStore();
+  const { isLoading, loadAll, seedData } = useWealthStore();
 
   useEffect(() => {
     loadAll();
@@ -40,15 +38,17 @@ export default function DashboardPage() {
         <div className="space-y-4 mb-6">
           <IncognitoWarning />
           <BackupReminder />
+          {/* TODO: Buton temporar - de șters după testare */}
+          <button
+            onClick={seedData}
+            className="px-4 py-2 bg-violet-600 text-white rounded-lg text-sm hover:bg-violet-700"
+          >
+            Încarcă date de test
+          </button>
         </div>
 
         <div className="space-y-6">
           <NetWorthCard />
-
-          <div className="grid gap-6 md:grid-cols-2">
-            <AssetPieChart />
-            <MonthlyChart />
-          </div>
 
           <AssetList />
           <DebtList />

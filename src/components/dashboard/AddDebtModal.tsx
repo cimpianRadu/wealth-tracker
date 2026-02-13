@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useWealthStore } from '@/lib/store';
 import { convertToRON, DEBT_CATEGORY_LABELS } from '@/lib/currency';
-import type { Debt, DebtCategory, Currency } from '@/lib/db';
+import type { DebtCategory, Currency } from '@/lib/db';
 import {
   Dialog,
   DialogContent,
@@ -25,12 +25,10 @@ import {
 interface AddDebtModalProps {
   open: boolean;
   onClose: () => void;
-  debt?: Debt;
 }
 
-export function AddDebtModal({ open, onClose, debt }: AddDebtModalProps) {
-  const { addDebt, updateDebt, exchangeRates } = useWealthStore();
-  const isEditing = !!debt;
+export function AddDebtModal({ open, onClose }: AddDebtModalProps) {
+  const { addDebt, exchangeRates } = useWealthStore();
 
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
@@ -41,15 +39,7 @@ export function AddDebtModal({ open, onClose, debt }: AddDebtModalProps) {
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
-    if (debt) {
-      setName(debt.name);
-      setAmount(String(debt.originalAmount));
-      setCurrency(debt.currency);
-      setInterestRate(debt.interestRate ? String(debt.interestRate) : '');
-      setDueDate(debt.dueDate || '');
-      setCategory(debt.category as DebtCategory);
-      setNotes(debt.notes || '');
-    } else {
+    if (open) {
       setName('');
       setAmount('');
       setCurrency('RON');
@@ -58,7 +48,7 @@ export function AddDebtModal({ open, onClose, debt }: AddDebtModalProps) {
       setCategory('personal-loan');
       setNotes('');
     }
-  }, [debt, open]);
+  }, [open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,29 +58,16 @@ export function AddDebtModal({ open, onClose, debt }: AddDebtModalProps) {
 
     const amountRON = convertToRON(numericAmount, currency, exchangeRates);
 
-    if (isEditing && debt?.id) {
-      await updateDebt(debt.id, {
-        name,
-        amountRON,
-        currency,
-        originalAmount: numericAmount,
-        interestRate: interestRate ? parseFloat(interestRate) : undefined,
-        dueDate: dueDate || undefined,
-        category,
-        notes: notes || undefined,
-      });
-    } else {
-      await addDebt({
-        name,
-        amountRON,
-        currency,
-        originalAmount: numericAmount,
-        interestRate: interestRate ? parseFloat(interestRate) : undefined,
-        dueDate: dueDate || undefined,
-        category,
-        notes: notes || undefined,
-      });
-    }
+    await addDebt({
+      name,
+      amountRON,
+      currency,
+      originalAmount: numericAmount,
+      interestRate: interestRate ? parseFloat(interestRate) : undefined,
+      dueDate: dueDate || undefined,
+      category,
+      notes: notes || undefined,
+    });
 
     onClose();
   };
@@ -99,13 +76,11 @@ export function AddDebtModal({ open, onClose, debt }: AddDebtModalProps) {
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {isEditing ? 'Editează Datorie' : 'Adaugă Datorie Nouă'}
-          </DialogTitle>
+          <DialogTitle>Adaugă Datorie Nouă</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-1.5">
             <Label htmlFor="debt-name">Nume / Descriere</Label>
             <Input
               id="debt-name"
@@ -116,7 +91,7 @@ export function AddDebtModal({ open, onClose, debt }: AddDebtModalProps) {
             />
           </div>
 
-          <div>
+          <div className="space-y-1.5">
             <Label htmlFor="debt-category">Categorie</Label>
             <Select value={category} onValueChange={(v) => setCategory(v as DebtCategory)}>
               <SelectTrigger>
@@ -133,7 +108,7 @@ export function AddDebtModal({ open, onClose, debt }: AddDebtModalProps) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
+            <div className="space-y-1.5">
               <Label htmlFor="debt-amount">Sumă</Label>
               <Input
                 id="debt-amount"
@@ -145,7 +120,7 @@ export function AddDebtModal({ open, onClose, debt }: AddDebtModalProps) {
                 required
               />
             </div>
-            <div>
+            <div className="space-y-1.5">
               <Label htmlFor="debt-currency">Monedă</Label>
               <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
                 <SelectTrigger>
@@ -161,7 +136,7 @@ export function AddDebtModal({ open, onClose, debt }: AddDebtModalProps) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
+            <div className="space-y-1.5">
               <Label htmlFor="interest-rate">Dobândă % (opțional)</Label>
               <Input
                 id="interest-rate"
@@ -172,7 +147,7 @@ export function AddDebtModal({ open, onClose, debt }: AddDebtModalProps) {
                 placeholder="5.5"
               />
             </div>
-            <div>
+            <div className="space-y-1.5">
               <Label htmlFor="due-date">Data Scadenței (opțional)</Label>
               <Input
                 id="due-date"
@@ -183,7 +158,7 @@ export function AddDebtModal({ open, onClose, debt }: AddDebtModalProps) {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-1.5">
             <Label htmlFor="debt-notes">Note (opțional)</Label>
             <Textarea
               id="debt-notes"
@@ -198,9 +173,7 @@ export function AddDebtModal({ open, onClose, debt }: AddDebtModalProps) {
             <Button type="button" variant="outline" onClick={onClose}>
               Anulează
             </Button>
-            <Button type="submit">
-              {isEditing ? 'Salvează' : 'Adaugă'}
-            </Button>
+            <Button type="submit">Adaugă</Button>
           </div>
         </form>
       </DialogContent>

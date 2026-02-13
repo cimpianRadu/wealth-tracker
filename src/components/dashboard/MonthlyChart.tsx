@@ -1,8 +1,10 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import { useWealthStore } from '@/lib/store';
 import { formatCurrency } from '@/lib/currency';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   LineChart,
   Line,
@@ -14,8 +16,21 @@ import {
   Legend,
 } from 'recharts';
 
+const RANGES = [
+  { label: '3L', months: 3 },
+  { label: '6L', months: 6 },
+  { label: '1A', months: 12 },
+  { label: 'Tot', months: 0 },
+] as const;
+
 export function MonthlyChart() {
   const { snapshots, displayCurrency, displayValue } = useWealthStore();
+  const [range, setRange] = useState<number>(0); // 0 = all
+
+  const filteredSnapshots = useMemo(() => {
+    if (range === 0 || snapshots.length === 0) return snapshots;
+    return snapshots.slice(-range);
+  }, [snapshots, range]);
 
   if (snapshots.length < 2) {
     return (
@@ -32,7 +47,7 @@ export function MonthlyChart() {
     );
   }
 
-  const chartData = snapshots.map(s => ({
+  const chartData = filteredSnapshots.map(s => ({
     month: s.month,
     'Avere Netă': Math.round(displayValue(s.netWorth)),
     'Active': Math.round(displayValue(s.totalAssets)),
@@ -41,8 +56,21 @@ export function MonthlyChart() {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-lg">Evoluție Lunară</CardTitle>
+        <div className="flex gap-1">
+          {RANGES.map(r => (
+            <Button
+              key={r.label}
+              variant={range === r.months ? 'default' : 'ghost'}
+              size="sm"
+              className="h-7 px-2.5 text-xs"
+              onClick={() => setRange(r.months)}
+            >
+              {r.label}
+            </Button>
+          ))}
+        </div>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={240}>
@@ -66,14 +94,14 @@ export function MonthlyChart() {
               dataKey="Active"
               stroke="#10B981"
               strokeWidth={1.5}
-              strokeDasharray="5 5"
+              dot={{ r: 3 }}
             />
             <Line
               type="monotone"
               dataKey="Datorii"
               stroke="#EF4444"
               strokeWidth={1.5}
-              strokeDasharray="5 5"
+              dot={{ r: 3 }}
             />
           </LineChart>
         </ResponsiveContainer>

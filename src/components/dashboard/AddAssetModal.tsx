@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useWealthStore } from '@/lib/store';
 import { convertToRON, CATEGORY_LABELS } from '@/lib/currency';
-import type { Asset, AssetCategory, Currency } from '@/lib/db';
+import type { AssetCategory, Currency } from '@/lib/db';
 import {
   Dialog,
   DialogContent,
@@ -25,12 +25,10 @@ import {
 interface AddAssetModalProps {
   open: boolean;
   onClose: () => void;
-  asset?: Asset;
 }
 
-export function AddAssetModal({ open, onClose, asset }: AddAssetModalProps) {
-  const { addAsset, updateAsset, exchangeRates } = useWealthStore();
-  const isEditing = !!asset;
+export function AddAssetModal({ open, onClose }: AddAssetModalProps) {
+  const { addAsset, exchangeRates } = useWealthStore();
 
   const [name, setName] = useState('');
   const [category, setCategory] = useState<AssetCategory>('stocks');
@@ -41,15 +39,7 @@ export function AddAssetModal({ open, onClose, asset }: AddAssetModalProps) {
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
-    if (asset) {
-      setName(asset.name);
-      setCategory(asset.category);
-      setAmount(String(asset.amount));
-      setValue(String(asset.currency === 'RON' ? asset.valueRON : asset.valueRON / (asset.currency === 'EUR' ? exchangeRates.eurToRon : exchangeRates.usdToRon)));
-      setCurrency(asset.currency);
-      setPurchaseDate(asset.purchaseDate || '');
-      setNotes(asset.notes || '');
-    } else {
+    if (open) {
       setName('');
       setCategory('stocks');
       setAmount('1');
@@ -58,7 +48,7 @@ export function AddAssetModal({ open, onClose, asset }: AddAssetModalProps) {
       setPurchaseDate('');
       setNotes('');
     }
-  }, [asset, open, exchangeRates]);
+  }, [open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,28 +60,16 @@ export function AddAssetModal({ open, onClose, asset }: AddAssetModalProps) {
 
     const valueRON = convertToRON(numericValue, currency, exchangeRates);
 
-    if (isEditing && asset?.id) {
-      await updateAsset(asset.id, {
-        name,
-        category,
-        amount: numericAmount,
-        valueRON,
-        currency,
-        purchaseDate: purchaseDate || undefined,
-        notes: notes || undefined,
-      });
-    } else {
-      await addAsset({
-        name,
-        category,
-        amount: numericAmount,
-        valueRON,
-        currency,
-        purchaseDate: purchaseDate || undefined,
-        notes: notes || undefined,
-        isActive: true,
-      });
-    }
+    await addAsset({
+      name,
+      category,
+      amount: numericAmount,
+      valueRON,
+      currency,
+      purchaseDate: purchaseDate || undefined,
+      notes: notes || undefined,
+      isActive: true,
+    });
 
     onClose();
   };
@@ -100,13 +78,11 @@ export function AddAssetModal({ open, onClose, asset }: AddAssetModalProps) {
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {isEditing ? 'Editează Activ' : 'Adaugă Activ Nou'}
-          </DialogTitle>
+          <DialogTitle>Adaugă Activ Nou</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-1.5">
             <Label htmlFor="name">Nume / Descriere</Label>
             <Input
               id="name"
@@ -117,7 +93,7 @@ export function AddAssetModal({ open, onClose, asset }: AddAssetModalProps) {
             />
           </div>
 
-          <div>
+          <div className="space-y-1.5">
             <Label htmlFor="category">Categorie</Label>
             <Select value={category} onValueChange={(v) => setCategory(v as AssetCategory)}>
               <SelectTrigger>
@@ -134,7 +110,7 @@ export function AddAssetModal({ open, onClose, asset }: AddAssetModalProps) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
+            <div className="space-y-1.5">
               <Label htmlFor="amount">Cantitate</Label>
               <Input
                 id="amount"
@@ -146,7 +122,7 @@ export function AddAssetModal({ open, onClose, asset }: AddAssetModalProps) {
                 required
               />
             </div>
-            <div>
+            <div className="space-y-1.5">
               <Label htmlFor="currency">Monedă</Label>
               <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
                 <SelectTrigger>
@@ -161,7 +137,7 @@ export function AddAssetModal({ open, onClose, asset }: AddAssetModalProps) {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-1.5">
             <Label htmlFor="value">Valoare Totală ({currency})</Label>
             <Input
               id="value"
@@ -174,7 +150,7 @@ export function AddAssetModal({ open, onClose, asset }: AddAssetModalProps) {
             />
           </div>
 
-          <div>
+          <div className="space-y-1.5">
             <Label htmlFor="purchaseDate">Data Achiziției (opțional)</Label>
             <Input
               id="purchaseDate"
@@ -184,7 +160,7 @@ export function AddAssetModal({ open, onClose, asset }: AddAssetModalProps) {
             />
           </div>
 
-          <div>
+          <div className="space-y-1.5">
             <Label htmlFor="notes">Note (opțional)</Label>
             <Textarea
               id="notes"
@@ -199,9 +175,7 @@ export function AddAssetModal({ open, onClose, asset }: AddAssetModalProps) {
             <Button type="button" variant="outline" onClick={onClose}>
               Anulează
             </Button>
-            <Button type="submit">
-              {isEditing ? 'Salvează' : 'Adaugă'}
-            </Button>
+            <Button type="submit">Adaugă</Button>
           </div>
         </form>
       </DialogContent>
