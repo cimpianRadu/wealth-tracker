@@ -1,65 +1,23 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Toaster } from "@/components/ui/sonner";
-import { PremiumPopup } from "@/components/ads/PremiumPopup";
-import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import type { Metadata, Viewport } from 'next';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "Wealth Tracker România — Urmărire Avere Personală 100% Privat",
+  title: 'Wealth Tracker: cheltuielile casei, în doi',
   description:
-    "Trackuiește-ți acțiunile, crypto, economii și datorii. 100% gratuit, fără cont, datele rămân în browser-ul tău.",
-  keywords: [
-    "urmărire avere personală",
-    "calculare net worth România",
-    "tracker portofoliu investiții",
-    "gestiune finanțe personale gratuit",
-    "wealth tracker",
-    "net worth calculator",
-  ],
-  openGraph: {
-    title: "Wealth Tracker România — Urmărire Avere Personală 100% Privat",
-    description:
-      "Trackuiește-ți acțiunile, crypto, economii și datorii. 100% gratuit, fără cont, datele rămân în browser-ul tău.",
-    type: "website",
-    locale: "ro_RO",
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
+    'Încărcați extrasele de cont, iar aplicația le împarte pe categorii, vă arată unde se duc banii și răspunde la întrebări despre cheltuielile casei.',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f6f3ee' },
+    { media: '(prefers-color-scheme: dark)', color: '#151311' },
+  ],
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ro">
-      <head>
-        <script
-          defer
-          data-domain={process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN || ""}
-          src="https://plausible.io/js/script.js"
-        />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased font-[family-name:var(--font-geist-sans)]`}
-      >
-        {children}
-        <PremiumPopup />
-        <Toaster position="bottom-left" />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

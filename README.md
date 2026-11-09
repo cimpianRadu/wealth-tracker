@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# wealthtracker.ro v2: cheltuielile casei, în doi
 
-## Getting Started
+Next.js 16 + Neon Postgres. Fără servicii legate de un hosting anume: rulează pe Vercel, Cloudflare (OpenNext) sau un server cu `next start`.
 
-First, run the development server:
+## Ce face
+
+- **Login** cu Google sau cu cod de 6 cifre pe email (Resend). Fără parole.
+- **Gospodărie și partener**: link de invitație valabil 7 zile, o singură folosire.
+- **Extrase PDF**: textul e extras în memorie, IBAN/card/CNP mascate, tranzacțiile citite cu Claude într-o ciornă pe care o verifici înainte de salvare. PDF-ul nu se păstrează. Duplicatele (inclusiv plățile „în așteptare” care apar decontate luna următoare) sunt sărite.
+- **Termen lunar pentru extrase**: ziua setată în gospodărie, banner în aplicație și email cu 2 zile înainte și în ziua termenului (GitHub Actions apelează `/api/cron/reminders`).
+- **Panou**: total vs. medie, buget pe membru (fără banii dați partenerului și fără PFA), grafic pe 12 luni, categorii, plăți recurente, insights, „amintiri” animate (acum un an, locul vostru, cea mai scumpă zi).
+- **Asistent**: Claude cu tool-uri care interoghează doar tranzacțiile gospodăriei.
+- **GDPR**: export JSON și ștergerea contului din Setări.
+- **/demo**: panoul cu date inventate, fără DB.
+
+## Pornire
 
 ```bash
+cp .env.example .env.local   # completează valorile
+npm install
+npm run db:migrate           # creează tabelele în Neon
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Ce trebuie configurat o dată
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Neon**: proiect în regiunea Frankfurt, `DATABASE_URL` (pooled), apoi `npm run db:migrate`.
+2. **AUTH_SECRET**: `openssl rand -base64 48`.
+3. **Google**: OAuth client „Web application”, redirect `https://wealthtracker.ro/api/auth/google/callback`.
+4. **Resend**: domeniul `wealthtracker.ro` verificat, `RESEND_API_KEY`, `RESEND_FROM`.
+5. **Anthropic**: `ANTHROPIC_API_KEY`.
+6. **Reminder**: `CRON_SECRET` în env-ul aplicației și, cu `APP_URL`, în GitHub Secrets.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Structură
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `db/migrations/` schema SQL, aplicată cu `scripts/db-migrate.mjs`
+- `src/lib/auth/` sesiuni HMAC, coduri pe email, Google OAuth
+- `src/lib/household.ts` accesul la datele gospodăriei (verifică membership-ul)
+- `src/lib/insights.ts` calculele din panou, funcții pure (folosite și de demo)
+- `src/lib/ai/` citirea extraselor și asistentul
