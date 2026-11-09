@@ -25,11 +25,11 @@ npm run dev
 ## Ce trebuie configurat o dată
 
 1. **Neon**: proiect în regiunea Frankfurt, `DATABASE_URL` (pooled), apoi `npm run db:migrate`.
-2. **AUTH_SECRET**: `openssl rand -base64 48`.
-3. **Google**: OAuth client „Web application”, redirect `https://wealthtracker.ro/api/auth/google/callback`.
-4. **Resend**: domeniul `wealthtracker.ro` verificat, `RESEND_API_KEY`, `RESEND_FROM`.
-5. **Anthropic**: `ANTHROPIC_API_KEY`.
-6. **Reminder**: `CRON_SECRET` în env-ul aplicației și, cu `APP_URL`, în GitHub Secrets.
+2. **Google**: OAuth client „Web application”, redirect `https://wealthtracker.ro/api/auth/google/callback`.
+3. **Resend**: domeniul `wealthtracker.ro` verificat, `RESEND_API_KEY`, `RESEND_FROM`.
+4. **Anthropic**: `ANTHROPIC_API_KEY`.
+
+`AUTH_SECRET`, `APP_URL` și `CRON_SECRET` sunt opționale: cheia de semnare se generează singură în baza de date, adresa vine din request, iar reminderul e idempotent.
 
 ## Structură
 

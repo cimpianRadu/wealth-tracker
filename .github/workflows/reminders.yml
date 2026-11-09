@@ -1,7 +1,5 @@
 # Reminderele pentru extrase: o dată pe zi, la 08:17 ora României (06:17 UTC iarna).
-# Setează în GitHub (Settings > Secrets and variables > Actions):
-#   APP_URL      ex. https://wealthtracker.ro
-#   CRON_SECRET  același ca în env-ul aplicației
+# Endpoint-ul e idempotent (un email pe membru, lună și fel), deci nu are nevoie de secret.
 name: Reminder extrase
 
 on:
@@ -14,9 +12,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Apelează /api/cron/reminders
-        env:
-          APP_URL: ${{ secrets.APP_URL }}
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
-        run: |
-          if [ -z "$APP_URL" ] || [ -z "$CRON_SECRET" ]; then echo "APP_URL sau CRON_SECRET lipsește"; exit 0; fi
-          curl -fsS -H "Authorization: Bearer $CRON_SECRET" "$APP_URL/api/cron/reminders"
+        run: curl -fsS "https://wealthtracker.ro/api/cron/reminders"

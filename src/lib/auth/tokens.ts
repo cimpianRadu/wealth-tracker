@@ -43,11 +43,32 @@ export function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-export function authSecret(): string {
-  const value = process.env.AUTH_SECRET;
-  if (!value || value.length < 32) {
-    throw new Error('AUTH_SECRET lipsește sau e mai scurt de 32 de caractere.');
+let cachedSecret: Promise<string> | null = null;
+
+/**
+ * Cheia HMAC: din AUTH_SECRET dacă e setat, altfel una aleatoare generată o
+ * singură dată și ținută în tabelul app_secrets. Așa aplicația pornește fără
+ * niciun secret configurat de mână, iar sesiunile rămân valabile între deploy-uri.
+ */
+export function authSecret(): Promise<string> {
+  const env = process.env.AUTH_SECRET;
+  if (env && env.length >= 32) return Promise.resolve(env);
+  if (!cachedSecret) {
+    cachedSecret = loadOrCreateSecret().catch((err) => {
+      cachedSecret = null;
+      throw err;
+    });
   }
+  return cachedSecret;
+}
+
+async function loadOrCreateSecret(): Promise<string> {
+  const { db, str } = await import('../db');
+  // ON CONFLICT: dacă două instanțe pornesc deodată, câștigă prima, iar ambele citesc aceeași valoare.
+  await db()`INSERT INTO app_secrets (name, value) VALUES ('auth', ${randomToken(48)}) ON CONFLICT (name) DO NOTHING`;
+  const [row] = await db()`SELECT value FROM app_secrets WHERE name = 'auth'`;
+  const value = str(row?.value);
+  if (value.length < 32) throw new Error('Cheia de semnare din app_secrets lipsește.');
   return value;
 }
 
@@ -64,7 +85,7 @@ export interface TokenPayload {
 
 export async function createToken(payload: TokenPayload): Promise<string> {
   const body = base64UrlEncode(JSON.stringify(payload));
-  const sig = await hmacHex(authSecret(), body);
+  const sig = await hmacHex(await authSecret(), body);
   return `${body}.${sig}`;
 }
 
@@ -77,7 +98,7 @@ export async function verifyToken(
   if (dot === -1) return null;
   const body = token.slice(0, dot);
   const sig = token.slice(dot + 1);
-  if (!safeEqual(sig, await hmacHex(authSecret(), body))) return null;
+  if (!safeEqual(sig, await hmacHex(await authSecret(), body))) return null;
   const json = base64UrlDecode(body);
   if (!json) return null;
   try {
@@ -113,8 +134,8 @@ export function generateLoginCode(): string {
   return String(100_000 + (v % range));
 }
 
-export function hashLoginCode(email: string, code: string): Promise<string> {
-  return hmacHex(authSecret(), `code:${normalizeEmail(email)}:${code}`);
+export async function hashLoginCode(email: string, code: string): Promise<string> {
+  return hmacHex(await authSecret(), `code:${normalizeEmail(email)}:${code}`);
 }
 
 /** Tokenul din linkul de invitație: aleator, în DB ținem doar hash-ul lui. */
@@ -126,8 +147,8 @@ export function randomToken(bytes = 24): string {
   return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-export function hashInviteToken(token: string): Promise<string> {
-  return hmacHex(authSecret(), `invite:${token}`);
+export async function hashInviteToken(token: string): Promise<string> {
+  return hmacHex(await authSecret(), `invite:${token}`);
 }
 
 export function cookieOptions(maxAgeSeconds: number) {

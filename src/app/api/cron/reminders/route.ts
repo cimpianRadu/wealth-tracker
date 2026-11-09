@@ -9,11 +9,13 @@ import { dayLabel, monthLabel, shiftMonth } from '@/lib/model';
 // ca aplicația să nu depindă de cron-ul unui hosting anume.
 // Trimite reminder cu 2 zile înainte de termen și în ziua termenului, câte
 // unul pe membru, lună și fel, doar celor care nu au încărcat încă nimic.
+// Nu cere secret: reminder_log face ca un apel în plus să nu trimită nimic în
+// plus. Dacă CRON_SECRET e setat, e verificat.
 
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
   const auth = request.headers.get('authorization') ?? '';
-  if (!secret || !safeEqual(auth, `Bearer ${secret}`)) {
+  if (secret && !safeEqual(auth, `Bearer ${secret}`)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
