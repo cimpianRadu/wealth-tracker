@@ -12,4 +12,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Apelează /api/cron/reminders
-        run: curl -fsS "https://wealthtracker.ro/api/cron/reminders"
+        run: curl -fsSL "https://www.wealthtracker.ro/api/cron/reminders"
