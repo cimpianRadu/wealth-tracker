@@ -79,6 +79,7 @@ Reguli:
 3. Include și sumele blocate / în așteptare / „sume blocate”, cu pending=true.
 4. Comisioanele băncii sunt cheltuieli separate (categoria abonamente dacă e abonament de cont, altfel altele).
 5. Un extras poate avea mai multe conturi sau valute: pune la fiecare tranzacție contul și moneda ei.
+6. Direcția (direction) se stabilește după sold, nu după numele comerciantului: dacă soldul crește după rând, banii au intrat (in); dacă scade, au ieșit (out). Când extrasul are coloane separate debit/credit sau „Bani ieșiți”/„Bani intrați”, folosește coloana. La Revolut, „De la: X” înseamnă bani primiți de la X (in), iar „Către: X” bani trimiși (out). Un comerciant de la care de obicei cumperi (ex. un magazin online) poate apărea și cu bani intrați: atunci e refund, nu expense.
 
 Fel (kind):
 - own_transfer: bani mutați între conturile aceleiași persoane (inclusiv PFA-ul titularului, pocket-uri, vault-uri, economii), plata cardului de credit din contul propriu. Titularul extrasului: ${p.uploaderNames.join(', ') || 'necunoscut'}.
