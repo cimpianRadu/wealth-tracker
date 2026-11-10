@@ -1,77 +1,125 @@
 import Link from 'next/link';
-import { FileUp, MessageCircle, Sparkles, Users } from 'lucide-react';
+import { Logo } from '@/components/Logo';
+import { LedgerBackdrop } from '@/components/LedgerBackdrop';
+
+const STEPS = [
+  {
+    title: 'Încarci extrasul',
+    text: 'PDF-ul descărcat din aplicația băncii, o dată pe lună. Merge cu BT, Revolut, ING și alte bănci.',
+  },
+  {
+    title: 'Verifici lista',
+    text: 'Fiecare plată apare cu data, suma și categoria. Corectezi ce nu e bine și abia apoi salvezi.',
+  },
+  {
+    title: 'Vezi unde s-au dus banii',
+    text: 'Totalul casei pe luna asta, comparat cu lunile trecute, și cât a cheltuit fiecare dintre voi.',
+  },
+];
 
 const FEATURES = [
   {
-    icon: FileUp,
-    title: 'Încărcați extrasele PDF',
-    text: 'BT, Revolut, ING și altele. Tranzacțiile sunt citite automat și împărțite pe categorii. Le verificați înainte să fie salvate.',
+    title: 'Un buget pentru amândoi',
+    text: 'Îți inviți partenerul cu un link. Fiecare își încarcă extrasele lui, iar cifrele se adună într-un singur loc.',
   },
   {
-    icon: Users,
-    title: 'În doi, pe aceleași cifre',
-    text: 'Invitați partenerul cu un link. Fiecare își încarcă extrasele, iar casa vede totul la un loc, cu bugetul fiecăruia separat.',
+    title: 'Abonamentele, la vedere',
+    text: 'Plățile care se repetă în fiecare lună apar separat, ca să vezi ușor ce mai folosești și ce nu.',
   },
   {
-    icon: Sparkles,
-    title: 'Insights și amintiri',
-    text: 'Plăți recurente, categoriile care au crescut, cât costă cafeaua pe un an și cum arăta octombrie de anul trecut.',
+    title: 'Întrebi și primești cifra',
+    text: '„Cât am dat pe supermarket în ultimele trei luni?” Răspunsul vine din tranzacțiile voastre, cu suma exactă.',
   },
   {
-    icon: MessageCircle,
-    title: 'Întrebați direct',
-    text: '„Cât am cheltuit pe supermarket în ultimele trei luni?” Asistentul răspunde din datele voastre, nu din presupuneri.',
+    title: 'Un an mai târziu',
+    text: 'Din când în când îți arată cum arăta aceeași lună anul trecut: unde ați mâncat, ce ați plătit, cât a costat.',
   },
 ];
 
 export default function Home() {
   return (
-    <main className="mx-auto max-w-5xl px-4 pb-20">
-      <header className="flex items-center justify-between py-6">
-        <span className="font-display text-xl">Wealth Tracker</span>
-        <nav className="flex items-center gap-2">
-          <Link href="/demo" className="btn btn-ghost">
-            Demo
-          </Link>
-          <Link href="/intra" className="btn">
-            Intră
-          </Link>
-        </nav>
-      </header>
+    <>
+      <div className="relative">
+        <LedgerBackdrop />
+        <div className="relative mx-auto max-w-5xl px-4">
+          <header className="flex items-center justify-between py-6">
+            <Logo />
+            <nav className="flex items-center gap-2">
+              <Link href="/demo" className="btn btn-ghost bg-paper hidden sm:inline-flex">
+                Exemplu
+              </Link>
+              <Link href="/intra" className="btn">
+                Intră în cont
+              </Link>
+            </nav>
+          </header>
 
-      <section className="py-14 md:py-24">
-        <p className="text-sm font-semibold uppercase tracking-wider text-accent">Cheltuielile casei, în doi</p>
-        <h1 className="font-display mt-4 max-w-3xl text-4xl leading-tight md:text-6xl">
-          Știți exact unde se duc banii, fără să copiați nimic de mână.
-        </h1>
-        <p className="mt-6 max-w-2xl text-lg text-muted">
-          Încărcați extrasele de cont o dată pe lună. Restul îl face aplicația: categorii, totaluri pe săptămâni și pe
-          membri, plăți recurente și un asistent care vă răspunde la întrebări despre bani.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/intra" className="btn btn-accent">
-            Începe gratuit
-          </Link>
-          <Link href="/demo" className="btn btn-ghost">
-            Vezi un exemplu
-          </Link>
+          <section className="pb-56 pt-12 md:pb-36 md:pt-28">
+            <h1 className="font-display max-w-xl text-4xl leading-[1.1] md:text-6xl">Unde s-au dus banii luna asta?</h1>
+            <p className="mt-6 max-w-md text-lg leading-relaxed text-muted">
+              Încarci extrasele de la bancă, iar Wealth Tracker pune fiecare plată la categoria ei. Tu și partenerul
+              vedeți aceleași cifre, fără să mai completați un tabel de mână.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/intra" className="btn btn-accent">
+                Începe gratuit
+              </Link>
+              <Link href="/demo" className="btn btn-ghost bg-paper">
+                Vezi o lună de exemplu
+              </Link>
+            </div>
+          </section>
         </div>
-      </section>
+      </div>
 
-      <section className="grid gap-4 md:grid-cols-2">
-        {FEATURES.map((f) => (
-          <div key={f.title} className="card p-6">
-            <f.icon className="h-6 w-6 text-accent" aria-hidden />
-            <h2 className="mt-4 text-lg font-semibold">{f.title}</h2>
-            <p className="mt-2 text-muted">{f.text}</p>
-          </div>
-        ))}
-      </section>
+      <main className="mx-auto max-w-5xl px-4 pb-20">
+        <section aria-labelledby="cum-merge" className="border-t border-line pt-12">
+          <h2 id="cum-merge" className="font-display text-2xl">
+            Cum merge
+          </h2>
+          <ol className="mt-8 grid gap-8 md:grid-cols-3">
+            {STEPS.map((s, i) => (
+              <li key={s.title}>
+                <span className="tabular font-display text-3xl text-accent">{i + 1}</span>
+                <h3 className="mt-2 font-semibold">{s.title}</h3>
+                <p className="mt-1.5 leading-relaxed text-muted">{s.text}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
 
-      <footer className="mt-16 flex flex-wrap gap-4 text-sm text-muted">
-        <Link href="/confidentialitate">Confidențialitate</Link>
-        <a href="mailto:contact@wealthtracker.ro">contact@wealthtracker.ro</a>
-      </footer>
-    </main>
+        <section aria-labelledby="ce-mai-face" className="mt-16 border-t border-line pt-12">
+          <h2 id="ce-mai-face" className="font-display text-2xl">
+            Ce mai face
+          </h2>
+          <dl className="mt-8 grid gap-x-12 gap-y-8 md:grid-cols-2">
+            {FEATURES.map((f) => (
+              <div key={f.title}>
+                <dt className="font-semibold">{f.title}</dt>
+                <dd className="mt-1.5 leading-relaxed text-muted">{f.text}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        <section className="mt-16 rounded-2xl bg-accent-soft px-6 py-8 md:px-10">
+          <h2 className="font-display text-2xl">Datele voastre rămân ale voastre</h2>
+          <p className="mt-3 max-w-2xl leading-relaxed">
+            Serverele sunt în Frankfurt. PDF-ul nu se păstrează după ce e citit, iar IBAN-ul, numărul cardului și CNP-ul
+            sunt ascunse înainte de citire. Poți șterge contul și toate datele oricând, din setări.
+          </p>
+        </section>
+
+        <footer className="mt-16 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted">
+          <span>© {new Date().getFullYear()} Wealth Tracker</span>
+          <Link href="/confidentialitate" className="hover:text-ink">
+            Confidențialitate
+          </Link>
+          <a href="mailto:contact@wealthtracker.ro" className="hover:text-ink">
+            contact@wealthtracker.ro
+          </a>
+        </footer>
+      </main>
+    </>
   );
 }

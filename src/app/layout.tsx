@@ -4,7 +4,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Wealth Tracker: cheltuielile casei, în doi',
   description:
-    'Încărcați extrasele de cont, iar aplicația le împarte pe categorii, vă arată unde se duc banii și răspunde la întrebări despre cheltuielile casei.',
+    'Încarci extrasele de la bancă, iar Wealth Tracker pune fiecare plată la categoria ei. Tu și partenerul vedeți aceleași cifre, fără tabele completate de mână.',
 };
 
 export const viewport: Viewport = {

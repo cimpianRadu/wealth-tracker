@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Logo } from '@/components/Logo';
 
 export const metadata = { title: 'Confidențialitate · Wealth Tracker' };
 
@@ -39,8 +40,8 @@ const SECTIONS: { title: string; body: string[] }[] = [
 export default function Privacy() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">
-      <Link href="/" className="font-display text-xl">
-        Wealth Tracker
+      <Link href="/" aria-label="Wealth Tracker, prima pagină">
+        <Logo />
       </Link>
       <h1 className="font-display mt-8 text-4xl">Confidențialitate</h1>
       <p className="mt-3 text-muted">

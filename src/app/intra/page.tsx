@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Logo } from '@/components/Logo';
 import { redirect } from 'next/navigation';
 import { currentUser } from '@/lib/auth/session';
 import { dbConfigured } from '@/lib/db';
@@ -14,11 +15,11 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-4 py-12">
-      <Link href="/" className="font-display text-xl">
-        Wealth Tracker
+      <Link href="/" aria-label="Wealth Tracker, prima pagină">
+        <Logo />
       </Link>
       <h1 className="font-display mt-8 text-3xl">Intră în cont</h1>
-      <p className="mt-2 text-muted">Fără parolă: cu Google sau cu un cod primit pe email.</p>
+      <p className="mt-2 text-muted">Cu Google sau cu un cod primit pe email. Nu ai nevoie de parolă.</p>
       {sp.eroare === 'google' && (
         <p className="mt-4 rounded-lg bg-bad-soft px-3 py-2 text-sm text-bad">
           Intrarea cu Google nu a mers. Încearcă din nou sau folosește codul pe email.

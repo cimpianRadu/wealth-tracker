@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FileUp, LayoutDashboard, List, MessageCircle, Settings } from 'lucide-react';
 import clsx from 'clsx';
+import { LogoMark } from './Logo';
 
 const ITEMS = [
   { href: '', label: 'Panou', icon: LayoutDashboard },
@@ -18,7 +19,8 @@ export function AppNav({ base, householdName, demo = false }: { base: string; ho
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
-        <Link href={base} className="font-display text-lg whitespace-nowrap">
+        <Link href={base} className="flex items-center gap-2 font-display text-lg whitespace-nowrap">
+          <LogoMark className="h-6 w-6" />
           {householdName}
         </Link>
         {demo && <span className="rounded-full bg-warn-soft px-2 py-0.5 text-xs font-semibold text-warn">Demo</span>}
