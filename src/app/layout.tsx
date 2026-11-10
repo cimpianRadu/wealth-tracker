@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Wealth Tracker: cheltuielile casei, în doi',
+  title: 'Wealth Tracker: unde se duc banii casei',
   description:
-    'Încarci extrasele de la bancă, iar Wealth Tracker pune fiecare plată la categoria ei. Tu și partenerul vedeți aceleași cifre, fără tabele completate de mână.',
+    'Vezi cheltuielile casei la un loc și cum evoluează de la o lună la alta. Asistentul caută prin tranzacțiile voastre obiceiurile care costă și locurile unde puteți economisi.',
 };
 
 export const viewport: Viewport = {

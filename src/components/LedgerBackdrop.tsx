@@ -1,42 +1,72 @@
-// Fundalul din hero: o lună obișnuită a unei case, ca pe un extras pus la un loc.
-// E doar decor (aria-hidden); cifrele sunt inventate, dar plauzibile.
+// Fundalul din hero: cheltuielile unei case pe categorii, trei luni la rând,
+// cu diferența față de luna trecută. E doar decor (aria-hidden); cifrele sunt
+// inventate, dar plauzibile.
 
-const ROWS: [string, string, string, string, string][] = [
-  ['02.10', 'Kaufland', 'Supermarket', 'Ana', '−312,40'],
-  ['02.10', 'Enel Energie', 'Facturi', 'Mihai', '−186,00'],
-  ['03.10', 'Salariu', 'Venit', 'Mihai', '+9.450,00'],
-  ['04.10', 'Mega Image', 'Supermarket', 'Mihai', '−87,15'],
-  ['05.10', 'Netflix', 'Abonamente', 'Ana', '−59,99'],
-  ['06.10', 'OMV', 'Transport', 'Mihai', '−280,00'],
-  ['07.10', 'Farmacia Tei', 'Sănătate', 'Ana', '−64,30'],
-  ['08.10', 'Starbucks', 'Cafea', 'Ana', '−23,50'],
-  ['09.10', 'Digi', 'Facturi', 'Mihai', '−72,00'],
-  ['11.10', 'Lidl', 'Supermarket', 'Ana', '−241,88'],
-  ['12.10', 'Bolt', 'Transport', 'Mihai', '−34,70'],
-  ['13.10', 'eMAG', 'Casă', 'Ana', '−429,00'],
-  ['14.10', 'Retur eMAG', 'Retur', 'Ana', '+129,00'],
-  ['15.10', 'Sala Fit', 'Sport', 'Mihai', '−150,00'],
-  ['16.10', 'Spotify', 'Abonamente', 'Mihai', '−26,99'],
-  ['18.10', 'Profi', 'Supermarket', 'Mihai', '−58,40'],
-  ['19.10', 'La Mama', 'Restaurante', 'Ana', '−196,00'],
-  ['21.10', 'Glovo', 'Restaurante', 'Mihai', '−88,90'],
+const MONTHS = ['August', 'Septembrie', 'Octombrie'];
+
+const ROWS: [string, number, number, number][] = [
+  ['Supermarket', 2140, 2310, 2480],
+  ['Restaurante', 640, 910, 1180],
+  ['Livrări mâncare', 210, 340, 465],
+  ['Facturi', 820, 790, 860],
+  ['Transport', 690, 720, 655],
+  ['Abonamente', 245, 245, 312],
+  ['Haine', 380, 1120, 410],
+  ['Copii', 560, 610, 590],
+  ['Cafea', 140, 180, 236],
+  ['Sport', 150, 150, 150],
+  ['Sănătate', 95, 260, 120],
+  ['Cadouri', 0, 180, 350],
 ];
 
+const fmt = (n: number) => n.toLocaleString('ro-RO');
+
+function delta(prev: number, cur: number) {
+  if (prev === 0) return { text: 'nou', up: true };
+  const pct = Math.round(((cur - prev) / prev) * 100);
+  return { text: `${pct > 0 ? '+' : pct < 0 ? '−' : ''}${Math.abs(pct)}%`, up: pct > 0 };
+}
+
 export function LedgerBackdrop() {
+  const totals = MONTHS.map((_, i) => ROWS.reduce((s, r) => s + (r[i + 1] as number), 0));
+  const totalDelta = delta(totals[1], totals[2]);
   return (
-    <div aria-hidden className="ledger-backdrop pointer-events-none absolute inset-0 overflow-hidden">
+    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
       <div className="ledger-plane">
         <table className="tabular w-full text-[15px]">
+          <thead>
+            <tr className="border-b border-line text-left text-muted">
+              <th className="py-2.5 pr-6 font-normal">Categorie</th>
+              {MONTHS.map((m) => (
+                <th key={m} className="py-2.5 pr-6 text-right font-normal">
+                  {m}
+                </th>
+              ))}
+              <th className="py-2.5 text-right font-normal">Față de sept.</th>
+            </tr>
+          </thead>
           <tbody>
-            {ROWS.map(([d, m, c, who, amt], i) => (
-              <tr key={i} className="border-b border-line">
-                <td className="py-2.5 pr-6 text-muted">{d}</td>
-                <td className="py-2.5 pr-6">{m}</td>
-                <td className="py-2.5 pr-6 text-muted">{c}</td>
-                <td className="py-2.5 pr-6 text-muted">{who}</td>
-                <td className={`py-2.5 text-right ${amt.startsWith('+') ? 'text-accent' : ''}`}>{amt} lei</td>
-              </tr>
-            ))}
+            {ROWS.map(([name, a, b, c]) => {
+              const d = delta(b, c);
+              return (
+                <tr key={name} className="border-b border-line">
+                  <td className="py-2.5 pr-6">{name}</td>
+                  <td className="py-2.5 pr-6 text-right text-muted">{fmt(a)}</td>
+                  <td className="py-2.5 pr-6 text-right text-muted">{fmt(b)}</td>
+                  <td className="py-2.5 pr-6 text-right">{fmt(c)}</td>
+                  <td className={`py-2.5 text-right ${d.up ? 'text-warn' : 'text-accent'}`}>{d.text}</td>
+                </tr>
+              );
+            })}
+            <tr className="font-semibold">
+              <td className="py-2.5 pr-6">Total</td>
+              {totals.map((t, i) => (
+                <td key={i} className="py-2.5 pr-6 text-right">
+                  {fmt(t)}
+                </td>
+              ))}
+              <td className={`py-2.5 text-right ${totalDelta.up ? 'text-warn' : 'text-accent'}`}>{totalDelta.text}</td>
+            </tr>
           </tbody>
         </table>
       </div>
